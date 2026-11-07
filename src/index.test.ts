@@ -80,6 +80,7 @@ describe('isPlainObjectShallow', () => {
         [false, ['foo', 'bar'], "['foo', 'bar']"],
         [false, Object.create(null), 'Object.create(null)'],
         [false, Object.create({}), 'Object.create({})'],
+        [false, Object.create(Object.create(null)), 'Object.create(Object.create(null))'],
         [false, new (class Foo {})(), 'new (class Foo {})'],
         // deep true, which not correct
         [true, {1: {bar: [NaN]}}, '{1: {bar: [NaN]}}'],
@@ -244,6 +245,59 @@ describe('isPlainValue', () => {
     cases.forEach(([expected, value, exp]) => {
         it(`should return '${expected}' for "${exp}"`, () => {
             expect(isPlainValue(value)).toBe(expected);
+        });
+    });
+});
+
+describe('cyclic references', () => {
+    it('should return false for a self-referencing object without throwing', () => {
+        const value: Record<string, unknown> = {};
+        value.self = value;
+
+        expect(isPlainObject(value)).toBe(false);
+    });
+
+    it('should return false for a self-referencing array without throwing', () => {
+        const value: unknown[] = [];
+        value.push(value);
+
+        expect(isPlainArray(value)).toBe(false);
+    });
+
+    it('should return false for a cycle nested in a plain object', () => {
+        const child: Record<string, unknown> = {};
+        child.self = child;
+
+        expect(isPlainObject({child})).toBe(false);
+    });
+
+    it('should return true for a shared reference (DAG)', () => {
+        const shared = {};
+
+        expect(isPlainObject({a: shared, b: shared})).toBe(true);
+    });
+});
+
+const createDeepObject = (leaf: unknown, depth: number): Record<string, unknown> => {
+    let value: Record<string, unknown> = {leaf};
+
+    for (let i = 0; i < depth; i++) {
+        value = {child: value};
+    }
+
+    return value;
+};
+
+describe('deep nesting', () => {
+    const depths = [0, 1, 2, 10, 100, 1000, 10000] as const;
+
+    depths.forEach((depth) => {
+        it(`should return 'true' for a valid object at depth ${depth} without overflowing the stack`, () => {
+            expect(isPlainObject(createDeepObject({}, depth))).toBe(true);
+        });
+
+        it(`should return 'false' for an invalid leaf at depth ${depth}`, () => {
+            expect(isPlainObject(createDeepObject(NaN, depth))).toBe(false);
         });
     });
 });

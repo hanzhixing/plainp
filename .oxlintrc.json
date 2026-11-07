@@ -16,6 +16,7 @@
             "files": ["src/**/*.test.ts"],
             "rules": {
                 "eslint/max-classes-per-file": "off",
+                "eslint/max-lines": ["warn", {"max": 1000}],
                 "eslint/max-lines-per-function": "off",
                 "eslint/no-object-constructor": "off",
                 "typescript/no-extraneous-class": "off"

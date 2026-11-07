@@ -4,11 +4,7 @@ export type SerializableValue = SerializablePrimitive | SerializableObject | Ser
 
 export type SerializableArray = SerializableValue[] | readonly SerializableValue[];
 
-export type SerializableObject = {
-    [K in string]: SerializableValue;
-} & {
-    [K in string]?: SerializableValue | undefined;
-};
+export type SerializableObject = {[key: string]: SerializableValue};
 
 export type PlainPrimitive = SerializablePrimitive | undefined;
 
@@ -16,17 +12,9 @@ export type PlainValue = PlainPrimitive | PlainObject | PlainArray;
 
 export type PlainArray = PlainValue[] | readonly PlainValue[];
 
-export type PlainObject = {
-    [K in string]: PlainValue;
-} & {
-    [K in string]?: PlainValue | undefined;
-};
+export type PlainObject = {[key: string]: PlainValue};
 
-export type PlainObjectShallow = {
-    [K in string]: any;
-} & {
-    [K in string]?: any | undefined;
-};
+export type PlainObjectShallow = {[key: string]: any};
 
 export const isSerializablePrimitive = (value: unknown): value is SerializablePrimitive => {
     if (value === null) {
@@ -65,17 +53,69 @@ export const isPlainPrimitive = (value: unknown): value is PlainPrimitive => {
 };
 
 export const isPlainObjectShallow = (value: unknown): value is PlainObjectShallow => {
-    if (typeof value !== 'object' || value === null) {
-        return false;
+    return typeof value === 'object' && value !== null && Object.getPrototypeOf(value) === Object.prototype;
+};
+
+type PlainDeepFrame = {
+    node: unknown;
+    enter: boolean;
+};
+
+const pushPlainChildren = (node: object, stack: PlainDeepFrame[]): void => {
+    if (Array.isArray(node)) {
+        for (let i = 0; i < node.length; i++) {
+            stack.push({node: node[i], enter: true});
+        }
+
+        return;
     }
 
-    let proto = value;
+    for (const key of Object.keys(node)) {
+        stack.push({node: (node as Record<string, unknown>)[key], enter: true});
+    }
+};
 
-    while (Object.getPrototypeOf(proto) !== null) {
-        proto = Object.getPrototypeOf(proto);
+const isPlainDeep = (root: unknown): boolean => {
+    const inPath = new WeakSet<object>();
+    const done = new WeakSet<object>();
+    const stack: PlainDeepFrame[] = [{node: root, enter: true}];
+
+    while (stack.length > 0) {
+        const frame = stack.pop() as PlainDeepFrame;
+        const node = frame.node;
+
+        if (typeof node !== 'object' || node === null) {
+            if (!isPlainPrimitive(node)) {
+                return false;
+            }
+
+            continue;
+        }
+
+        if (!frame.enter) {
+            inPath.delete(node);
+            done.add(node);
+            continue;
+        }
+
+        if (!Array.isArray(node) && !isPlainObjectShallow(node)) {
+            return false;
+        }
+
+        if (inPath.has(node)) {
+            return false;
+        }
+
+        if (done.has(node)) {
+            continue;
+        }
+
+        inPath.add(node);
+        stack.push({node, enter: false});
+        pushPlainChildren(node, stack);
     }
 
-    return Object.getPrototypeOf(value) === proto;
+    return true;
 };
 
 export const isPlainArray = (value: unknown): value is PlainArray => {
@@ -83,17 +123,7 @@ export const isPlainArray = (value: unknown): value is PlainArray => {
         return false;
     }
 
-    return value.every((v) => {
-        if (isPlainPrimitive(v)) {
-            return true;
-        }
-
-        if (Array.isArray(v)) {
-            return isPlainArray(v);
-        }
-
-        return isPlainObject(v);
-    });
+    return isPlainDeep(value);
 };
 
 export const isPlainObject = (value: unknown): value is PlainObject => {
@@ -101,17 +131,7 @@ export const isPlainObject = (value: unknown): value is PlainObject => {
         return false;
     }
 
-    return Object.values(value).every((v) => {
-        if (isPlainPrimitive(v)) {
-            return true;
-        }
-
-        if (Array.isArray(v)) {
-            return isPlainArray(v);
-        }
-
-        return isPlainObject(v);
-    });
+    return isPlainDeep(value);
 };
 
 export const isPlainValue = (value: unknown): value is PlainValue => {
