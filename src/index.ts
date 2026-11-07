@@ -78,13 +78,12 @@ export const isPlainObjectShallow = (value: unknown): value is PlainObjectShallo
     return Object.getPrototypeOf(value) === proto;
 };
 
-
 export const isPlainArray = (value: unknown): value is PlainArray => {
     if (!Array.isArray(value)) {
         return false;
     }
 
-    return value.every(v => {
+    return value.every((v) => {
         if (isPlainPrimitive(v)) {
             return true;
         }
@@ -102,7 +101,7 @@ export const isPlainObject = (value: unknown): value is PlainObject => {
         return false;
     }
 
-    return Object.values(value).every(v => {
+    return Object.values(value).every((v) => {
         if (isPlainPrimitive(v)) {
             return true;
         }

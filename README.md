@@ -1,12 +1,15 @@
 # PlainP
+
 Plain Predicates
 
 [![MIT License](https://img.shields.io/npm/l/plainp.svg)](https://github.com/hanzhixing/plainp/blob/main/LICENSE)
 [![npm version](https://img.shields.io/npm/v/plainp.svg)](https://www.npmjs.com/package/plainp)
 [![npm download](https://img.shields.io/npm/dt/plainp.svg)](https://www.npmjs.com/package/plainp)
 [![npm bundle size](https://img.shields.io/bundlephobia/minzip/plainp.svg)](https://www.npmjs.com/package/plainp)
+[![codecov](https://codecov.io/gh/hanzhixing/plainp/branch/main/graph/badge.svg)](https://codecov.io/gh/hanzhixing/plainp)
 
 ## Introduction
+
 Functions test if values are plain objects or values.
 
 ## Installation
@@ -31,6 +34,7 @@ import type from {
 ```
 
 #### JSON data types + `undefined`
+
 ```typescript
 import type from {
     PlainPrimitive,
@@ -42,6 +46,7 @@ import type from {
 ```
 
 ### Utility functions
+
 ```javascript
 import from {
     isSerializablePrimitive,
@@ -54,7 +59,7 @@ import from {
 
 #### isSerializablePrimitive
 
-``` javascript
+```javascript
 // => true
 isSerializablePrimitive(1);
 isSerializablePrimitive('foo');
@@ -69,7 +74,7 @@ isSerializablePrimitive(Infinity);
 
 #### isPlainPrimitive
 
-``` javascript
+```javascript
 // => true
 isPlainPrimitive(1);
 isPlainPrimitive('foo');
@@ -84,7 +89,7 @@ isPlainPrimitive(Infinity);
 
 #### isPlainObjectShallow
 
-``` javascript
+```javascript
 // => true
 isPlainObjectShallow({});
 isPlainObjectShallow({foo: 'bar'});
@@ -104,12 +109,12 @@ isPlainObjectShallow('foo');
 isPlainObjectShallow([]);
 isPlainObjectShallow(Object.create(null));
 isPlainObjectShallow(Object.create({}));
-isPlainObjectShallow(new (class Foo {}));
+isPlainObjectShallow(new (class Foo {})());
 ```
 
 #### isPlainArray
 
-``` javascript
+```javascript
 // => true
 isPlainArray([]);
 isPlainArray([undefined]);
@@ -130,7 +135,7 @@ isPlainArray([Infinity]);
 
 #### isPlainObject
 
-``` javascript
+```javascript
 // => true
 isPlainObject({});
 isPlainObject({foo: 'bar'});
@@ -162,7 +167,7 @@ isPlainObject([]);
 isPlainObject(['foo', 'bar']);
 isPlainObject(Object.create(null));
 isPlainObject(Object.create({}));
-isPlainObject(new (class Foo {}));
+isPlainObject(new (class Foo {})());
 isPlainObject({1: {bar: [NaN]}});
 isPlainObject({foo: {bar: [NaN]}});
 isPlainObject({foo: {bar: [Infinity]}});
@@ -171,14 +176,15 @@ isPlainObject({foo: {bar: {baz: [1, false, NaN]}}});
 isPlainObject({foo: {bar: {baz: [1, false, Infinity]}}});
 isPlainObject({foo: {bar: {baz: Object.create(null)}}});
 isPlainObject({foo: {bar: {baz: Object.create({})}}});
-isPlainObject({foo: {bar: new (class Foo {})}});
+isPlainObject({foo: {bar: new (class Foo {})()}});
 ```
 
 #### isPlainValue
 
-``` javascript
-isPlainPrimitive(value) || isPlainArray(value) | isPlainObject(value)
+```javascript
+isPlainPrimitive(value) || isPlainArray(value) | isPlainObject(value);
 ```
 
 ## License
+
 [MIT licensed](./LICENSE).

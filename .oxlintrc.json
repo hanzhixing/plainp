@@ -1,0 +1,25 @@
+{
+    "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+    "categories": {
+        "correctness": "error",
+        "suspicious": "error",
+        "pedantic": "warn"
+    },
+    "plugins": ["typescript", "unicorn", "oxc"],
+    "env": {
+        "es2022": true,
+        "node": true
+    },
+    "ignorePatterns": ["dist", "coverage", "node_modules"],
+    "overrides": [
+        {
+            "files": ["src/**/*.test.ts"],
+            "rules": {
+                "eslint/max-classes-per-file": "off",
+                "eslint/max-lines-per-function": "off",
+                "eslint/no-object-constructor": "off",
+                "typescript/no-extraneous-class": "off"
+            }
+        }
+    ]
+}

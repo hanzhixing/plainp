@@ -2,7 +2,10 @@
     "extends": "@tsconfig/recommended/tsconfig.json",
     "compilerOptions": {
         "outDir": "./dist",
-        "declaration": true
+        "declaration": true,
+        "rootDir": "./src",
+        "lib": ["ES2017"],
+        "types": ["vitest/globals"]
     },
     "include": ["./src"],
     "exclude": ["./src/**/*.test.ts"]
